@@ -35,6 +35,10 @@ WebSync Station is a Rust-based desktop application designed to help you monitor
 
 ---
 
+## Example
+
+![image](https://github.com/user-attachments/assets/99c8c0c5-af0c-4b0a-a8f0-dfe30e8a4396)
+
 
 
 
