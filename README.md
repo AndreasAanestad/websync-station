@@ -46,7 +46,7 @@ WebSync Station is a Rust-based desktop application designed to help you monitor
 
 ### Prerequisites
 
-*   **For running pre-compiled binaries:** None, just download the appropriate file for your OS from the [Releases page](https://github.com/YOUR_USERNAME/YOUR_REPO/releases).
+*   **For running pre-compiled binaries:** None, just download the appropriate file for your OS from the [Releases page](https://github.com/AndreasAanestad/websync-station/releases).
 *   **For building from source:**
     *   [Rust toolchain](https://www.rust-lang.org/tools/install) (stable version recommended)
     *   Git
@@ -54,7 +54,7 @@ WebSync Station is a Rust-based desktop application designed to help you monitor
 ### Installation
 
 1.  **Using Pre-compiled Binaries (Recommended for most users):**
-    *   Go to the [Releases page](https://github.com/AndreasAanestad/websync_station/releases) of this repository.
+    *   Go to the [Releases page](https://github.com/AAndreasAanestad/websync-station/releases) of this repository.
     *   Download the latest binary for your operating system (currently only windows, but more will come)
     *   Place the executable in a directory of your choice.
     *   (Optional) Create a `config.toml` file in the same directory or let the application create a default one on first run.
