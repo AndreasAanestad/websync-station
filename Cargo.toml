@@ -1,0 +1,21 @@
+[package]
+name = "websync_station"
+version = "0.1.0"
+edition = "2021"
+authors = ["Andreas Aanestad"]
+description = "Automated uptime monitoring and backup system"
+license = "MIT"
+
+
+[dependencies]
+eframe = "0.27"
+reqwest = { version = "0.12", features = ["blocking"] }
+toml = "0.8"
+serde = {version = "1.0", features = ["derive"]}
+jsonwebtoken = "9"
+serde_json = "1"
+url = "2.5"
+chrono = "0.4"
+lettre = { version = "0.10.4", default-features = false, features = ["builder", "smtp-transport", "rustls-tls"] }
+sanitize-filename = "0.6"
+
