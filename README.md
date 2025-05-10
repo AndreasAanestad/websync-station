@@ -71,10 +71,14 @@ WebSync Station is a Rust-based desktop application designed to help you monitor
 
 ## 📖 Usage
 
+
+*tl:dr*: Start the app, which makes the config file. Close the app and edit the config file. Restart the app and you are all set up.
+
+
 1.  Ensure you have a `config.toml` file in the same directory as the `websync-station` executable. If not, run the application once to generate a default `config.toml`, then edit it to your needs and restart the app.
-2.  Run the executable:
+3.  Run the executable:
     *   On Windows: Double-click `websync-station.exe`. The console window will be hidden.
-3.  The main window will appear, showing:
+4.  The main window will appear, showing:
     *   **Uptime Status:** A list of your configured URLs with a green check (✅) for OK or a red cross (❌) for down.
     *   **Internal Log:** A scrolling view of recent application events, errors, and backup attempts.
     *   **"Manually check all urls" button:** Triggers an immediate uptime check for all configured URLs.
