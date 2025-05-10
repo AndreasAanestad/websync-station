@@ -1,4 +1,4 @@
-pub const DEFAULT_CONFIG_TOML: &str = r#"
+
 ################################################################################
 #                                                                              #
 #                           WEBSYNC STATION CONFIG                             #
@@ -142,4 +142,3 @@ username = "myemailaccount@domain.com"
 password = "some pass word here"
 from = "myemailaccount@domain.com"
 
-"#; // End of the default config

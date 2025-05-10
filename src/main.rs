@@ -1,4 +1,5 @@
 #![windows_subsystem = "windows"] // Hide console window on Windows
+#![deny(arithmetic_overflow)]
 use chrono::prelude::*; // Brings DateTime, Utc, etc. into scope
 use chrono::Timelike; // Brings `.minute()`, `.hour()`, `.second()` into scope
 use chrono::Utc;
@@ -15,6 +16,7 @@ use lettre::{
 };
 use reqwest::blocking::Client;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
+use reqwest::blocking::multipart;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map as JsonMap, Value as JsonValue};
 use std::collections::HashMap;
@@ -559,7 +561,7 @@ impl StatusChecker {
     fn remove_backups_over_limit(&mut self, description: &str) {
         for backup in &mut self.backups {
             if backup.description == description {
-                let number_over_limit = backup.logs.len() as u32 - backup.max;
+                let number_over_limit = backup.logs.len() as i32 - backup.max as i32;
 
                 if number_over_limit > 0 {
                     println!("There are {} backups over limit", number_over_limit);
@@ -965,6 +967,82 @@ impl eframe::App for StatusChecker {
                                             ui.label(format!("{}- Size:{}", time_stamp, size_str));
 
                                             if ui.button("Restore").clicked() {
+
+
+                                                let path = format!(
+                                                    "{}/{}",
+                                                    self.backups[i].description,
+                                                    self.backups[i].logs[j].filename
+                                                );
+
+
+                                                let token_to_use = if self.token.is_empty() {
+                                                    match create_jwt(&self.payload, &self.secret, &self.jwt_expiry) {
+                                                        Ok(jwt) => jwt,
+                                                        Err(e) => {
+                                                            println!("Failed to create JWT for warning POST: {}", e);
+                                                            String::new() // Use empty string if JWT creation fails
+                                                        }
+                                                    }
+                                                } else {
+                                                    self.token.clone()
+                                                };
+
+
+
+
+                                                let restore_attempt = restore_backup(
+                                                    &self.backups[i].restore,
+                                                    &path,
+                                                    &token_to_use
+                                                );
+
+                                                match restore_attempt {
+                                                    Ok(_) => {
+                                                        println!("Restored file successfully");
+
+                                                        //add the restored file to the internal log
+
+                                                        let log_entry = InternalLogEntry {
+                                                            message: format!(
+                                                                "Successfully restored file {} from {}",
+                                                                self.backups[i].logs[j].filename,
+                                                                self.backups[i].description
+                                                            ),
+                                                            timestamp: Utc::now().to_rfc3339(),
+                                                        };
+
+                                                        self.internal_log.push(log_entry);
+
+  
+                                                    }
+                                                    Err(err) => {
+                                                        println!("Restore failed: {}", err);
+
+                                                        //add the error to the internal log
+
+                                                        let log_entry = InternalLogEntry {
+                                                            message: format!(
+                                                                "Failed to restore file {} from {}: {}",
+                                                                self.backups[i].logs[j].filename,
+                                                                self.backups[i].description,
+                                                                err
+                                                            ),
+                                                            timestamp: Utc::now().to_rfc3339(),
+                                                        };
+
+                                                        self.internal_log.push(log_entry);
+
+
+
+
+                                                    }
+                                                }
+
+
+
+
+
                                                 println!(
                                                     "Restoring {}",
                                                     self.backups[i].logs[j].filename
@@ -1398,5 +1476,33 @@ fn send_warning_post_request(
         ).into());
     }
 
+    Ok(())
+}
+
+
+fn restore_backup(url: &str, filename: &str, token: &str) -> Result<(), Box<dyn Error>> {
+    let part = multipart::Part::file(filename)?
+                   .mime_str("application/octet-stream")?;
+    let form = multipart::Form::new()
+                   .part("file", part);
+
+    let client = Client::builder()
+        .timeout(std::time::Duration::from_secs(300))
+        .build()?;
+
+    let mut req = client.post(url)
+        .multipart(form);
+
+    if !token.is_empty() {
+        req = req.header(AUTHORIZATION, format!("Bearer {}", token));
+    }
+
+    let resp = req.send()?;
+    if !resp.status().is_success() {
+        return Err(format!(
+            "POST to {} failed: {}",
+            url, resp.status()
+        ).into());
+    }
     Ok(())
 }
